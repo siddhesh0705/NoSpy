@@ -15,24 +15,23 @@ const register = async (req,res)=>{
 const login = async (req,res)=>{
    const {email,password} = req.body
     
-   if(!email || !password){
-    throw new BadRequestError('please provide email and password')
-   }
-   const user = await User.findOne({email});
-   //compare password
-   if(!user){
-    throw new UnauthenticatedError('invalid crenedials')
-   }
+  try {
+    const user = await User.findOne({ email });
 
-   const ispasswordCorrect = await user.comparepassword(password)
-   if(!ispasswordCorrect){
-    throw new UnauthenticatedError('invalid crenedials')
-   }
+    if(!user || !(await bcrypt.compare(password,user.password))){
+        return res.status(401).json({message:'Invalid username or password'});
+    }
 
-   const token = user.createJWT();
+    //res.status(200).json({message:'login successfull',token});
+    const token = user.createJWT();
    res.status(StatusCodes.OK).json({user:{name:user.name},token})
-}
 
+  } catch (error) {
+    console.error('login error',error);
+    res.status(500).json({message:'internal server error '})
+  }
+
+}
 module.exports = {
     register , login
 }
