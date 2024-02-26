@@ -2,6 +2,7 @@ const express = require('express');
 const Message = require('../model/message'); // Corrected import
 const User = require('../model/User');
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 
 const send_message = async (req, res) => {
     try {
@@ -9,9 +10,11 @@ const send_message = async (req, res) => {
         const receiverId = req.body.receiverId;
         const text = req.body.text;
 
+        const hashcontent = crypto.createHash('sha256').update(text).digest('hex');
+
         // Create a new message and save it to the database
         const message = new Message({
-            text: text,
+            text: hashcontent,
             sender: senderId,
             receiver: receiverId
         });
