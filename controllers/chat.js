@@ -1,8 +1,6 @@
 const express = require('express');
-const Message = require('../model/message'); // Corrected import
-const User = require('../model/User');
+const Message = require('../model/message');
 const mongoose = require('mongoose');
-const crypto = require('crypto');
 
 const send_message = async (req, res) => {
     try {
@@ -10,19 +8,17 @@ const send_message = async (req, res) => {
         const receiverId = req.body.receiverId;
         const text = req.body.text;
 
-        const hashcontent = crypto.createHash('sha256').update(text).digest('hex');
-
         // Create a new message and save it to the database
         const message = new Message({
-            text: hashcontent,
+            text: text,
             sender: senderId,
             receiver: receiverId
         });
 
         await message.save();
-        res.status(201).json({ message: 'message sent successfully', data: message }); // Responding with JSON
+        res.status(201).json({ message: 'Message sent successfully', data: message });
     } catch (error) {
-        res.status(401).send(error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 };
 
@@ -48,14 +44,13 @@ const receive_message = async (req, res) => {
     }
 };
 
-
 const messages = async (req, res) => {
     try {
         const messages = await Message.find()
             .populate('sender', 'name email')
             .populate('receiver', 'name email');
 
-        res.status(200).json(messages); // Responding with JSON
+        res.status(200).json(messages);
     } catch (error) {
         console.error('Error retrieving messages:', error);
         res.status(500).json({ error: 'Internal server error' });

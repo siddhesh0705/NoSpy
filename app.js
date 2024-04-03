@@ -1,56 +1,112 @@
+
 const express = require('express');
 const mongoose = require('mongoose');
-const socketio = require('socket.io');
 const http = require('http');
+const WebSocket = require('ws');
+const dotenv = require('dotenv');
 
-require('dotenv').config();
 
-const app =express();
 
+dotenv.config();
+
+
+const app = express();
 app.use(express.json());
-const connectDB = require('./db/connect');
-
-const authrouter = require('../PBL authentication/routes/auth');
-const chatrouter = require('./routes/chat');
-
-const notfoundmiddleware = require('../PBL authentication/middleware/not-found');
-const errorhandlermiddleware = require('../PBL authentication/middleware/error-handler');
 
 
-//api routes
-app.use('/api/v1/auth',authrouter);
-app.use('/api/v1/chat',chatrouter);
+const authRouter = require('../PBL authentication/routes/auth');
+const chatRouter = require('./routes/chat');
 
-//middlewares
-app.use(notfoundmiddleware);
-app.use(errorhandlermiddleware);
 
-//creating server
+const notFoundMiddleware = require('../PBL authentication/middleware/not-found');
+const errorHandlerMiddleware = require('../PBL authentication/middleware/error-handler');
+
+
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/chat', chatRouter);
+
+
+app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
+
+
 const server = http.createServer(app);
-const io = socketio(server);
 
-// Socket.io connection
-io.on('connection', (socket) => {
-    console.log('New user connected');
 
-    // Handle socket events here (e.g., send/receive messages)
-    socket.on('disconnect', () => {
-        console.log('User disconnected');
-    });
+const wss = new WebSocket.Server({ server });
+
+
+const Message = require('./model/message');
+
+wss.on('connection', ws => {
+  console.log('Client connected');
+
+  ws.on('message', message => {
+    console.log('Received:', message);
+
+    // Parse the incoming JSON message
+    try {
+      const data = JSON.parse(message);
+      console.log('Parsed JSON:', data);
+
+      // Extract sender, receiver, and text from the message
+      const { sender, receiver, text } = data;
+
+      // Create a new message document and save it to the database
+      const newMessage = new Message({
+        sender,
+        receiver,
+        text
+      });
+
+      newMessage.save()
+        .then(() => {
+          console.log('Message saved to database');
+        })
+        .catch(error => {
+          console.error('Error saving message to database:', error);
+        });
+    } catch (error) {
+      console.error('Error parsing JSON:', error);
+    }
+  });
+
+  ws.on('close', () => {
+    console.log('Client disconnected');
+  });
 });
 
-const port = process.env.PORT || 5000;
-//const host = '192.168.55.33';
-const start = async()=>{
-    try {
-        await connectDB(process.env.MONGO_URI); 
-        console.log('the database connected...')
-        app.listen(port,()=>
-            console.log(`server is listening on port ${port}`)
-        )
-    } catch (error) {
-        console.log(error);
-    }
-}
+
+// function savemessages(messagedata){
+//   const message = new messagemodel(messagedata);
+//   return message.save();
+// }
+
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('Connected to the database...');
+  } catch (error) {
+    console.error('Database connection error:', error);
+  }
+};
+const host = '192.168.6.33'; 
+const start = async () => {
+  try {
+    await connectDB();
+    const port = process.env.PORT || 5000;
+
+    server.listen(port, host, () => {
+      console.log(`Server is listening on http://${host}:${port}`); 
+    });
+
+  } catch (error) {
+    console.error('Server start error:', error);
+  }
+};
+
 
 start();
