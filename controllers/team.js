@@ -1,0 +1,106 @@
+
+const Team = require('../model/team'); 
+const user = require('../model/User'); 
+const Image = require('../model/image'); 
+const Task = require('../model/task'); 
+
+const create_team = async (req, res) => {
+    const { name, members_id_list, logo_id, leader_id, task_id_list } = req.body;
+
+    try {
+        if (!name || !members_id_list || !logo_id || !leader_id) {
+            return res.status(400).json({ success: false, message: 'Please fill all the fields' });
+        }
+
+        // const allMembersExist = await user.find({ _id: { $in: members_id_list } }).countDocuments() === members_id_list.length;
+        // if (!allMembersExist) {
+        //     return res.status(400).json({ success: false, message: 'One or more member IDs do not exist' });
+        // }
+
+        // const leaderExists = await user.exists({ _id: leader_id });
+        // if (!leaderExists) {
+        //     return res.status(400).json({ success: false, message: 'Leader ID does not exist' });
+        // }
+
+        // const logoExists = await Image.exists({ _id: logo_id });
+        // if (!logoExists) {
+        //     return res.status(400).json({ success: false, message: 'Logo ID does not exist' });
+        // }
+
+        // const allTasksExist = await Task.find({ _id: { $in: task_id_list } }).countDocuments() === task_id_list.length;
+        // if (!allTasksExist) {
+        //     return res.status(400).json({ success: false, message: 'One or more task IDs do not exist' });
+        // }
+
+        const newTeam = new Team({
+            name,
+            members_id_list,
+            logo_id,
+            leader_id,
+            task_id_list
+        });
+
+        const savedTeam = await newTeam.save();
+
+        res.status(201).json({ success: true, message: 'Team created successfully', team: savedTeam });
+
+    } catch (error) {
+        console.error('Error creating team:', error);
+        res.status(500).json({ success: false, message: 'Failed to create team', error: error.message });
+    }
+};
+
+const add_member = async (req,res)=>{
+    const {member_id,team_id} = req.body;
+
+    try {
+        if(!member_id || !team_id){
+            return res.status(401).json({sucess:false,message:'plzz fill all fields'});
+        }
+        else{
+            const team = await Team.findById(team_id);
+            if(!team){
+                return res.status(404).json({success:false,message:'team not found'});
+            }
+
+            team.members_id_list.push(member_id);
+
+            const updateTeam = await team.save();
+
+            return res.status(200).json({success:true,message:'member added successfully ',team:updateTeam});
+        }
+    } catch (error) {
+        console.error('error adding member to team',error);
+        return res.status(500).json({success:false,message:'failed to add team member',error:error.message});
+    }
+}
+const assign_task = async (req,res)=>{
+    const {title , discription , task_assigned_to , team_id , deadline , task_status} = req.body;
+
+    try {
+        if(!title || !discription || !task_assigned_to || !team_id || !deadline || !task_status){
+            return res.status(401).json({success:false,message:'plzz fill all the fields'});
+        }
+        else{
+            const newTask = new Task({
+                title,
+                discription,
+                task_assigned_to,
+                team_id,
+                deadline,
+                task_status
+            })
+            const savedTask = await newTask.save();
+            const team = await Team.findById(team_id);
+
+            team.task_id_list.push(savedTask._id);
+            
+            return res.status(200).json({success:true,message:'the task has been assigned successfully',task:savedTask});
+        }
+    } catch (error) {
+        console.error('error assigning task',error);
+        return res.statsu(500).json({success:false,message:'failed to assign task',error:error.message});
+    }
+}
+
+module.exports = {create_team ,add_member, assign_task};

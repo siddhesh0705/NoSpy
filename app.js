@@ -1,47 +1,37 @@
-
 const express = require('express');
 const mongoose = require('mongoose');
 const http = require('http');
-const cors = require('cors');
 
 const dotenv = require('dotenv');
 
-
-
 dotenv.config();
-
 
 const app = express();
 app.use(express.json());
 
-
-
 const authRouter = require('../PBL authentication/routes/auth');
 const chatRouter = require('./routes/chat');
-
+const teamRouter = require('./routes/team');
 
 const notFoundMiddleware = require('../PBL authentication/middleware/not-found');
 const errorHandlerMiddleware = require('../PBL authentication/middleware/error-handler');
 
-
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/chat', chatRouter);
-
+app.use('/api/v1/team',teamRouter);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
 
-
 const server = http.createServer(app);
 
-
-const io = require('socket.io')(server)
-  
+const io = require('socket.io')(server);
+const clients = {}; // Initialize the clients object
 
 const Message = require('./model/message');
 
 io.on("connection", (socket) => {
-  console.log("connetetd");
+  console.log("connected");
   console.log(socket.id, "has joined");
   socket.on("signin", (id) => {
     console.log(id);
@@ -54,42 +44,45 @@ io.on("connection", (socket) => {
       const message = new Message(msg);
       await message.save();
 
-      console.log("message saved in mongo:".message);
+      console.log("message saved in mongo:", message); // Corrected log statement
       let targetId = msg.targetId;
-      if (clients[targetId]) clients[targetId].emit("message", msg);
-      
+      if (clients[targetId]) {
+        clients[targetId].emit("message", msg);
+      }
+
     } catch (error) {
-      console.log("error occured while sending message",error);
+      console.log("error occurred while sending message", error);
     }
-    
+  });
+
+  socket.on("disconnect", () => { // Handle socket disconnection
+    console.log(socket.id, "disconnected");
+    // Remove the socket from clients
+    Object.keys(clients).forEach(clientId => {
+      if (clients[clientId] === socket) {
+        delete clients[clientId];
+      }
+    });
   });
 });
 
-
-// function savemessages(messagedata){
-//   const message = new messagemodel(messagedata);
-//   return message.save();
-// }
-
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.MONGO_URI);
     console.log('Connected to the database...');
   } catch (error) {
     console.error('Database connection error:', error);
   }
 };
-//const host = '192.168.6.33'; 
+
+const host = '192.168.0.121'; // Ensure this is correctly set for your network
 const start = async () => {
   try {
     await connectDB();
     const port = process.env.PORT || 5000;
 
-    server.listen(port,"0.0.0.0", () => {
-      console.log(`Server is listening on http://${port}`); 
+    server.listen(port, host, () => {
+      console.log(`Server is listening on http://${host}:${port}`); // Corrected log statement
     });
 
   } catch (error) {
@@ -97,5 +90,5 @@ const start = async () => {
   }
 };
 
-
 start();
+
