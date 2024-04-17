@@ -9,12 +9,12 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-const authRouter = require('../PBL authentication/routes/auth');
+const authRouter = require('./routes/auth');
 const chatRouter = require('./routes/chat');
 const teamRouter = require('./routes/team');
 
-const notFoundMiddleware = require('../PBL authentication/middleware/not-found');
-const errorHandlerMiddleware = require('../PBL authentication/middleware/error-handler');
+const notFoundMiddleware = require('./middleware/not-found');
+const errorHandlerMiddleware = require('./middleware/error-handler');
 
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/chat', chatRouter);
@@ -75,14 +75,14 @@ const connectDB = async () => {
   }
 };
 
-const host = '192.168.0.121'; // Ensure this is correctly set for your network
+//const host = '192.168.0.121'; // Ensure this is correctly set for your network
 const start = async () => {
   try {
     await connectDB();
     const port = process.env.PORT || 5000;
 
-    server.listen(port, host, () => {
-      console.log(`Server is listening on http://${host}:${port}`); // Corrected log statement
+    server.listen(port, () => {
+      console.log(`Server is listening on http://${port}`); // Corrected log statement
     });
 
   } catch (error) {

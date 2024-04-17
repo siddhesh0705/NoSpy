@@ -14,18 +14,20 @@ const account_schema = new mongoose.Schema({
     profile_pic_id:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Image',
-        required:true
+        required:false
     },
-    teams_id_list:{
+    teams_id_list:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:'Team',
-        required:true
-    },
-    friends_list_id:{
+        required:false,
+        default:[]
+    }],
+    friends_list_id:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:"user",
-        required:true
-    }
+        required:false,
+        default:[]
+    }]
 })
 
 const Account = mongoose.model('Account',account_schema);

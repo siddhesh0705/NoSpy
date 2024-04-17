@@ -41,6 +41,7 @@ const create_team = async (req, res) => {
         });
 
         const savedTeam = await newTeam.save();
+        
 
         res.status(201).json({ success: true, message: 'Team created successfully', team: savedTeam });
 
@@ -65,9 +66,13 @@ const add_member = async (req,res)=>{
 
             team.members_id_list.push(member_id);
 
-            const updateTeam = await team.save();
+            const user_id = await user.findById(member_id);
 
-            return res.status(200).json({success:true,message:'member added successfully ',team:updateTeam});
+            user.team_id_list.push(team_id);
+            const updateTeam = await team.save();
+            const updateUser = await user_id.save();
+
+            return res.status(200).json({success:true,message:'member added successfully ',team:updateTeam , user:updateUser});
         }
     } catch (error) {
         console.error('error adding member to team',error);
@@ -99,8 +104,39 @@ const assign_task = async (req,res)=>{
         }
     } catch (error) {
         console.error('error assigning task',error);
-        return res.statsu(500).json({success:false,message:'failed to assign task',error:error.message});
+        return res.statuss(500).json({success:false,message:'failed to assign task',error:error.message});
     }
 }
 
-module.exports = {create_team ,add_member, assign_task};
+const get_team = async (req, res) => {
+    const { team_id } = req.body; 
+    try {
+        if (!team_id) {
+            return res.status(401).json({ success: false, message: "Please enter the team_id" });
+        } else {
+            const team = await Team.findById(team_id);
+            if (team) {
+                return res.status(200).json({ success: true, message: "Team has been fetched successfully", team: team });
+            } else {
+                return res.status(404).json({ success: false, message: "Team not found" });
+            }
+        }
+    } catch (error) {
+        return res.status(500).json({ success: false, message: "Error occurred while fetching team", error: error.message });
+    }
+}
+
+// const get_user = async (req,res)=>{
+//     const user_id = req.body;
+
+//     try {
+//         if(!user_id){
+//             return res.status(400).
+//         }
+//     } catch (error) {
+        
+//     }
+// }
+
+
+module.exports = {create_team ,add_member, assign_task , get_team};

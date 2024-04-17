@@ -20,6 +20,23 @@ const userschema = new mongoose.Schema({
         required:[true,'please provide this field'],
         minlength:6,
     },
+    team_id_list:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Team",
+        required:false,
+        default:[]
+    },
+    friend_list_id:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"user",
+        required:false,
+        default:[]
+    },
+    profile_pic_id:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Image",
+        required:false,
+    }
 })
 
 userschema.pre('save' , async function(next){
