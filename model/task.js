@@ -10,12 +10,12 @@ const task_schema = new mongoose.Schema({
         required:true
     },
     task_assigned_to:{
-        type:mongoose.Schema.Types.ObjectId,
+        type:String,
         ref:'user',
         required:true
     },
     team_id:{
-        type:mongoose.Schema.Types.ObjectId,
+        type:String,
         ref:'Team',
         required:true
     },

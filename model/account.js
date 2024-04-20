@@ -3,7 +3,7 @@ const {Image} = require('./image');
 
 const account_schema = new mongoose.Schema({
     user_id:{
-        type:mongoose.Schema.Types.ObjectId,
+        type:String,
         ref:'user',
         required:true
     },
@@ -12,18 +12,18 @@ const account_schema = new mongoose.Schema({
         required:true
     },
     profile_pic_id:{
-        type:mongoose.Schema.Types.ObjectId,
+        type:String,
         ref:'Image',
         required:false
     },
     teams_id_list:[{
-        type:mongoose.Schema.Types.ObjectId,
+        type:String,
         ref:'Team',
         required:false,
         default:[]
     }],
     friends_list_id:[{
-        type:mongoose.Schema.Types.ObjectId,
+        type:String,
         ref:"user",
         required:false,
         default:[]

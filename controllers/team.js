@@ -3,6 +3,8 @@ const Team = require('../model/team');
 const user = require('../model/User'); 
 const Image = require('../model/image'); 
 const Task = require('../model/task'); 
+const User = require('../model/User');
+
 
 const create_team = async (req, res) => {
     const { name, members_id_list, logo_id, leader_id, task_id_list } = req.body;
@@ -110,11 +112,12 @@ const assign_task = async (req,res)=>{
 
 const get_team = async (req, res) => {
     const { team_id } = req.body; 
+    const userIdObjectId = mongoose.Types.ObjectId(team_id);
     try {
-        if (!team_id) {
+        if (!userIdObjectId) {
             return res.status(401).json({ success: false, message: "Please enter the team_id" });
         } else {
-            const team = await Team.findById(team_id);
+            const team = await Team.findById(userIdObjectId);
             if (team) {
                 return res.status(200).json({ success: true, message: "Team has been fetched successfully", team: team });
             } else {
@@ -126,17 +129,30 @@ const get_team = async (req, res) => {
     }
 }
 
-// const get_user = async (req,res)=>{
-//     const user_id = req.body;
+const get_user = async (req,res)=>{
+    const user_id = req.body;
+    const userIdObjectId = mongoose.Types.ObjectId(user_id);
 
-//     try {
-//         if(!user_id){
-//             return res.status(400).
-//         }
-//     } catch (error) {
-        
-//     }
-// }
+    try {
+        if(!userIdObjectId){
+            return res.status(400).json({success:false,message:"plzz give the required field"});
+        }
+        else{
+           const user = await User.findById(userIdObjectId);
+
+           if(user){
+            return res.status(200).json({success:true,message:"user found successfully",user:user});
+           }
+           else{
+            return res.status(404).json({success:false,message:"user not found"});
+           }
+
+            
+        }
+    } catch (error) {
+        return res.status(500).json({success:false,message:"internal server error",error:error.message});
+    }
+}
 
 
-module.exports = {create_team ,add_member, assign_task , get_team};
+module.exports = {create_team ,add_member, assign_task , get_team , get_user};

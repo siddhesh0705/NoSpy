@@ -6,22 +6,22 @@ const teamSchema = new mongoose.Schema({
         required: true
     },
     members_id_list: [{
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: 'User', 
         required: true
     }],
     logo_id: {
-        type: mongoose.Schema.Types.ObjectId,
+        type:String,
         ref: 'Image',
         required: true
     },
     leader_id: {
-        type: mongoose.Schema.Types.ObjectId,
+        type:String,
         ref: 'User',
         required: true
     },
     task_id_list: [{
-        type: mongoose.Schema.Types.ObjectId,
+        type:String,
         ref: 'Task', 
         required: true,
         default:[]
