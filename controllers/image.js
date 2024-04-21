@@ -4,13 +4,11 @@ const Image = require('../model/image');
 const Team = require('../model/team');
 
 const upload_logo = async (req, res) => {
-    
     try {
       
         if (!req.file) {
             return res.status(400).json({ success: false, message: 'No file uploaded' });
         }
-       
         const newImage = new Image({
             filename: req.file.originalname, 
             filepath: req.file.path 

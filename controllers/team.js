@@ -4,7 +4,7 @@ const user = require('../model/User');
 const Image = require('../model/image'); 
 const Task = require('../model/task'); 
 const User = require('../model/User');
-
+const mongoose = require('mongoose');
 
 const create_team = async (req, res) => {
     const { name, members_id_list, logo_id, leader_id, task_id_list } = req.body;
@@ -112,7 +112,7 @@ const assign_task = async (req,res)=>{
 
 const get_team = async (req, res) => {
     const { team_id } = req.body; 
-    const userIdObjectId = mongoose.Types.ObjectId(team_id);
+    const userIdObjectId = team_id;
     try {
         if (!userIdObjectId) {
             return res.status(401).json({ success: false, message: "Please enter the team_id" });
@@ -130,15 +130,15 @@ const get_team = async (req, res) => {
 }
 
 const get_user = async (req,res)=>{
-    const user_id = req.body;
-    const userIdObjectId = mongoose.Types.ObjectId(user_id);
+
+    const emailreq = req.body['email'];
 
     try {
-        if(!userIdObjectId){
+        if(!emailreq){
             return res.status(400).json({success:false,message:"plzz give the required field"});
         }
         else{
-           const user = await User.findById(userIdObjectId);
+           const user = await User.findOne({'email': emailreq});
 
            if(user){
             return res.status(200).json({success:true,message:"user found successfully",user:user});

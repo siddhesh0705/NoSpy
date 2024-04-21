@@ -13,7 +13,7 @@ router.post('/add_member',add_member);
 router.post('/assign_task',assign_task);
 router.post('/logo',upload.single('logo'),upload_logo);
 router.post('/profile_pic',upload.single('profile_pic'),upload_profile_pic)
-router.get('/get_team',get_team);
-router.get('/get_user',get_user);
+router.post('/get_team',get_team);
+router.post('/get_user',get_user);
 
 module.exports = router;
