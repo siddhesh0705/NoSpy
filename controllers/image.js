@@ -18,7 +18,7 @@ const upload_logo = async (req, res) => {
         const savedImage = await newImage.save();
 
        
-        res.status(200).json({ success: true, message: 'Logo uploaded successfully', logo_id: savedImage._id });
+        res.status(200).json({ success: true, message: 'Logo uploaded successfully', logo_id: savedImage.filepath });
     } catch (error) {
         console.error('Error uploading logo:', error);
         res.status(500).json({ success: false, message: 'Failed to upload logo', error: error.message });
@@ -42,7 +42,7 @@ const upload_profile_pic = async (req, res) => {
         const user_name = await user.findById(user_id);
         user_name.profile_pic_id  =  newImage._id;
        
-        res.status(200).json({ success: true, message: 'Logo uploaded successfully', logo_id: savedImage._id });
+        res.status(200).json({ success: true, message: 'Logo uploaded successfully', logo_id: savedImage.filepath });
     } catch (error) {
         console.error('Error uploading logo:', error);
         res.status(500).json({ success: false, message: 'Failed to upload profile', error: error.message });
