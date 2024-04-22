@@ -70,7 +70,7 @@ const add_member = async (req,res)=>{
 
             const user_id = await user.findById(member_id);
 
-            user.team_id_list.push(team_id);
+            user.teams_id_list.push(team_id);
             const updateTeam = await team.save();
             const updateUser = await user_id.save();
 
@@ -111,13 +111,14 @@ const assign_task = async (req,res)=>{
 }
 
 const get_team = async (req, res) => {
-    const { team_id } = req.body; 
-    const userIdObjectId = team_id;
+    const { user_id } = req.body; 
+    const userIdObjectId = user_id;
     try {
         if (!userIdObjectId) {
             return res.status(401).json({ success: false, message: "Please enter the team_id" });
         } else {
-            const team = await Team.findById(userIdObjectId);
+            // const team = await Team.findById(userIdObjectId);
+            const team = await Team.find({members_id_list:{$in :[userIdObjectId]}});
             if (team) {
                 return res.status(200).json({ success: true, message: "Team has been fetched successfully", team: team });
             } else {
