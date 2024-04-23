@@ -50,7 +50,8 @@ io.on("connection", (socket) => {
       await message.save();
 
       console.log("message saved in mongo:", message); // Corrected log statement
-      let targetId = msg.targetId;
+      let targetId = message.receiverId;
+      console.log(targetId);
       if (clients[targetId]) {
         clients[targetId].emit("message", msg);
       }
