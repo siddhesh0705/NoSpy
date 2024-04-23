@@ -39,12 +39,20 @@ const receive_message = async (req, res) => {
             return res.status(404).json({ message: 'No messages found' });
         }
 
+        // Emit each message to the receiver's WebSocket channel
+        messages.forEach(message => {
+            if (clients[receiverId]) {
+                clients[receiverId].emit("message", message);
+            }
+        });
+
         res.status(200).json(messages);
     } catch (error) {
         console.error('Error retrieving messages:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
 
 const messages = async (req, res) => {
     try {
