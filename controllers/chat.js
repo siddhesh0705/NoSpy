@@ -7,12 +7,14 @@ const send_message = async (req, res) => {
         const senderId = req.body.senderId;
         const receiverId = req.body.receiverId;
         const text = req.body.text;
+        const name = req.body.sender_name;
 
         // Create a new message and save it to the database
         const message = new Message({
             text: text,
             sender: senderId,
-            receiver: receiverId
+            receiver: receiverId,
+            name:name
         });
 
         await message.save();
