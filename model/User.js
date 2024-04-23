@@ -21,23 +21,25 @@ const userschema = new mongoose.Schema({
         minlength:6,
     },
     team_id_list:{
-        type:mongoose.Schema.Types.ObjectId,
+        type: [String], // Specify array of strings
         ref:"Team",
         required:false,
         default:[]
     },
     friend_list_id:{
-        type:mongoose.Schema.Types.ObjectId,
+        type: [String], // Specify array of strings
         ref:"user",
         required:false,
         default:[]
     },
     profile_pic_id:{
-        type:mongoose.Schema.Types.ObjectId,
+        type:String,
         ref:"Image",
         required:false,
     }
 })
+
+
 
 userschema.pre('save' , async function(next){
     const salt = await bcrypt.genSalt(10);
