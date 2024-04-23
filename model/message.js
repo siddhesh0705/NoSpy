@@ -9,13 +9,13 @@ const messageSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
-    sender: {
-        type: mongoose.Schema.Types.ObjectId,
+    senderId: {
+        type: String,
         ref: 'user',
         required: true
     },
-    receiver: {
-        type: mongoose.Schema.Types.ObjectId,
+    receiverId: {
+        type: String,
         ref: 'user',
         required: true
     },

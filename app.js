@@ -41,8 +41,12 @@ io.on("connection", (socket) => {
   socket.on("message", async (msg) => {
     console.log(msg);
     try {
-      const messageData = JSON.parse(msg);
-      const message = new Message(messageData);
+      console.log("Received message:", msg);
+      console.log("Message type:", typeof msg);
+
+      const updatedMessage = JSON.parse(msg);
+
+      const message = new Message(updatedMessage);
       await message.save();
 
       console.log("message saved in mongo:", message); // Corrected log statement
